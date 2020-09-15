@@ -1,5 +1,6 @@
 import TypeGuards from './TypeGuards';
-import Events, { OnMultipleEvents } from './Events';
+import EventHandling, { OnMultipleEvents } from './EventHandling';
+import DOMManipulation from './DOMManipulation';
 
 export type PropName =
 	| string
@@ -28,24 +29,16 @@ class JQuery {
 	}
 
 	/**
-	 * Html Simple Modifications
+	 * DOM manipulations
 	 */
 
 	text(): string;
 	text(input: string): this;
 	text(input: (index: number, originalText: string) => string): this;
 	text(input?: any): any {
-		if (input == null) {
-			return this.elements.reduce((acc, curr) => acc + (curr.textContent ?? ''), '');
-		}
+		const res = DOMManipulation.text(this.elements, input);
 
-		if (typeof input === 'string') {
-			this.elements.forEach((el) => (el.textContent = input));
-		} else if (typeof input === 'function') {
-			this.elements.forEach((el, index) => {
-				el.textContent = input(index, el.textContent);
-			});
-		}
+		if (res !== null) return res;
 
 		return this;
 	}
@@ -54,17 +47,9 @@ class JQuery {
 	html(input: string): this;
 	html(input: (index: number, originalText: string) => string): this;
 	html(input?: any): any {
-		if (input == null) {
-			return this.elements.reduce((acc, curr) => acc + curr.innerHTML, '');
-		}
+		const res = DOMManipulation.html(this.elements, input);
 
-		if (typeof input === 'string') {
-			this.elements.forEach((el) => (el.innerHTML = input));
-		} else if (typeof input === 'function') {
-			this.elements.forEach((el, index) => {
-				el.innerHTML = input(index, el.innerHTML);
-			});
-		}
+		if (res !== null) return res;
 
 		return this;
 	}
@@ -73,59 +58,23 @@ class JQuery {
 	val(input: string): this;
 	val(input: (index: number, originalText: string) => string): this;
 	val(input?: any): any {
-		if (input == null) {
-			return this.elements.reduce((acc, curr) => {
-				if (!(curr instanceof HTMLInputElement)) return acc;
+		const res = DOMManipulation.val(this.elements, input);
 
-				return acc + curr.value;
-			}, '');
-		}
-
-		if (typeof input === 'string') {
-			this.elements.forEach((el) => {
-				if (el instanceof HTMLInputElement) el.value = input;
-			});
-		} else if (typeof input === 'function') {
-			this.elements.forEach((el, index) => {
-				if (el instanceof HTMLInputElement) el.value = input(index, el.value);
-			});
-		}
+		if (res !== null) return res;
 
 		return this;
 	}
 
-	attr(attribute: string): string | null;
+	attr(attribute: string): string | undefined;
 	attr(attribute: { [attribute: string]: string }): this;
 	attr(attribute: string, modifier: string): this;
 	attr(attribute: string, modifier: (index: number, originalValue: string) => string): this;
 	attr(attribute: any, modifier?: any): any {
-		if (modifier == null) {
-			if (typeof attribute === 'string') {
-				if (!this.elements.length) return null;
+		const res = DOMManipulation.attr(this.elements, attribute, modifier);
 
-				return this.elements[0].getAttribute(attribute);
-			} else {
-				const attributeEntries = Object.entries(attribute);
+		if (typeof res === 'string' || res === undefined) return res;
 
-				this.elements.forEach((el) => {
-					attributeEntries.forEach(([a, value]) => el.setAttribute(a, value as string));
-				});
-
-				return this;
-			}
-		} else {
-			if (typeof modifier === 'string') {
-				this.elements.forEach((el) => {
-					el.setAttribute(attribute, modifier);
-				});
-			} else {
-				this.elements.forEach((el, index) => {
-					el.setAttribute(attribute, modifier(index, el.getAttribute(attribute)));
-				});
-			}
-
-			return this;
-		}
+		return this;
 	}
 
 	/**
@@ -135,62 +84,62 @@ class JQuery {
 	on(event: string, handler: () => any): this;
 	on(event: OnMultipleEvents): this;
 	on(event: any, handler?: any): this {
-		Events.on(this.elements, event, handler);
+		EventHandling.on(this.elements, event, handler);
 
 		return this;
 	}
 
 	click(handler: () => any): this {
-		Events.on(this.elements, 'click', handler);
+		EventHandling.on(this.elements, 'click', handler);
 
 		return this;
 	}
 
 	dblclick(handler: () => any): this {
-		Events.on(this.elements, 'dblclick', handler);
+		EventHandling.on(this.elements, 'dblclick', handler);
 
 		return this;
 	}
 
 	mouseenter(handler: () => any): this {
-		Events.on(this.elements, 'mouseenter', handler);
+		EventHandling.on(this.elements, 'mouseenter', handler);
 
 		return this;
 	}
 
 	mouseleave(handler: () => any): this {
-		Events.on(this.elements, 'mouseleave', handler);
+		EventHandling.on(this.elements, 'mouseleave', handler);
 
 		return this;
 	}
 
 	mousedown(handler: () => any): this {
-		Events.on(this.elements, 'mousedown', handler);
+		EventHandling.on(this.elements, 'mousedown', handler);
 
 		return this;
 	}
 
 	mouseup(handler: () => any): this {
-		Events.on(this.elements, 'mouseup', handler);
+		EventHandling.on(this.elements, 'mouseup', handler);
 
 		return this;
 	}
 
 	focus(handler: () => any): this {
-		Events.on(this.elements, 'focus', handler);
+		EventHandling.on(this.elements, 'focus', handler);
 
 		return this;
 	}
 
 	blur(handler: () => any): this {
-		Events.on(this.elements, 'blur', handler);
+		EventHandling.on(this.elements, 'blur', handler);
 
 		return this;
 	}
 
 	hover(handleMouseEnter: () => any, handleMouseLeave: () => any): this {
-		Events.on(this.elements, 'mouseenter', handleMouseEnter);
-		Events.on(this.elements, 'mouseleave', handleMouseLeave);
+		EventHandling.on(this.elements, 'mouseenter', handleMouseEnter);
+		EventHandling.on(this.elements, 'mouseleave', handleMouseLeave);
 
 		return this;
 	}

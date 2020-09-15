@@ -4,7 +4,7 @@ export interface OnMultipleEvents {
 
 type ElementsAccepted = (Window | Document | Element)[];
 
-class Events {
+class EventHandling {
 	static on(elements: ElementsAccepted, event: string, handler: () => any): void;
 	static on(elements: ElementsAccepted, event: OnMultipleEvents): void;
 	static on(elements: ElementsAccepted, event: any, handler?: any): void {
@@ -17,11 +17,11 @@ class Events {
 
 			elements.forEach((el) => {
 				eventsEntries.forEach(([e, fn]) => {
-					el.addEventListener(e, fn.bind(el as Element));
+					el.addEventListener(e, fn.bind(el));
 				});
 			});
 		}
 	}
 }
 
-export default Events;
+export default EventHandling;

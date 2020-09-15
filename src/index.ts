@@ -1,4 +1,4 @@
-import Events, { OnMultipleEvents } from './Events';
+import EventHandling, { OnMultipleEvents } from './EventHandling';
 import JQuery, { PropName } from './JQuery';
 
 interface I$ {
@@ -10,12 +10,12 @@ interface I$ {
 
 const $: I$ = (prop) => new JQuery(prop);
 
-$.ready = (fn) => {
-	window.addEventListener('DOMContentLoaded', fn);
+$.ready = (handler) => {
+	EventHandling.on([window], 'DOMContentLoaded', handler);
 };
 
 $.on = (event: any, handler?: any) => {
-	Events.on([window], event, handler);
+	EventHandling.on([window], event, handler);
 };
 
 export default $;
