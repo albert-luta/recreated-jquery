@@ -1,9 +1,21 @@
+import Events, { OnMultipleEvents } from './Events';
 import JQuery, { PropName } from './JQuery';
 
-const $ = (prop: PropName) => new JQuery(prop);
+interface I$ {
+	(prop: PropName): JQuery;
+	ready(fn: () => any): void;
+	on(event: string, handler: () => any): void;
+	on(event: OnMultipleEvents): void;
+}
 
-$.ready = (fn: () => any) => {
-	document.addEventListener('DOMContentLoaded', fn);
+const $: I$ = (prop) => new JQuery(prop);
+
+$.ready = (fn) => {
+	window.addEventListener('DOMContentLoaded', fn);
+};
+
+$.on = (event: any, handler?: any) => {
+	Events.on([window], event, handler);
 };
 
 export default $;

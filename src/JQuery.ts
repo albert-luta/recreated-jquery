@@ -1,4 +1,5 @@
 import TypeGuards from './TypeGuards';
+import Events, { OnMultipleEvents } from './Events';
 
 export type PropName =
 	| string
@@ -22,9 +23,13 @@ class JQuery {
 		} else if (TypeGuards.isArrayOfElements(prop)) {
 			this.elements = prop;
 		} else if (TypeGuards.isReadyFunction(prop)) {
-			document.addEventListener('DOMContentLoaded', prop);
+			window.addEventListener('DOMContentLoaded', prop);
 		}
 	}
+
+	/**
+	 * Html Simple Modifications
+	 */
 
 	text(): string;
 	text(input: string): this;
@@ -121,6 +126,73 @@ class JQuery {
 
 			return this;
 		}
+	}
+
+	/**
+	 * Events handling
+	 */
+
+	on(event: string, handler: () => any): this;
+	on(event: OnMultipleEvents): this;
+	on(event: any, handler?: any): this {
+		Events.on(this.elements, event, handler);
+
+		return this;
+	}
+
+	click(handler: () => any): this {
+		Events.on(this.elements, 'click', handler);
+
+		return this;
+	}
+
+	dblclick(handler: () => any): this {
+		Events.on(this.elements, 'dblclick', handler);
+
+		return this;
+	}
+
+	mouseenter(handler: () => any): this {
+		Events.on(this.elements, 'mouseenter', handler);
+
+		return this;
+	}
+
+	mouseleave(handler: () => any): this {
+		Events.on(this.elements, 'mouseleave', handler);
+
+		return this;
+	}
+
+	mousedown(handler: () => any): this {
+		Events.on(this.elements, 'mousedown', handler);
+
+		return this;
+	}
+
+	mouseup(handler: () => any): this {
+		Events.on(this.elements, 'mouseup', handler);
+
+		return this;
+	}
+
+	focus(handler: () => any): this {
+		Events.on(this.elements, 'focus', handler);
+
+		return this;
+	}
+
+	blur(handler: () => any): this {
+		Events.on(this.elements, 'blur', handler);
+
+		return this;
+	}
+
+	hover(handleMouseEnter: () => any, handleMouseLeave: () => any): this {
+		Events.on(this.elements, 'mouseenter', handleMouseEnter);
+		Events.on(this.elements, 'mouseleave', handleMouseLeave);
+
+		return this;
 	}
 }
 
