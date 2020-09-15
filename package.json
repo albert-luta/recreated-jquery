@@ -1,0 +1,24 @@
+{
+	"name": "recreated-jquery",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "parcel test/index.html"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/lutaalbert/recreated-jquery.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/lutaalbert/recreated-jquery/issues"
+	},
+	"homepage": "https://github.com/lutaalbert/recreated-jquery#readme",
+	"devDependencies": {
+		"parcel-bundler": "^1.12.4",
+		"typescript": "^4.0.2"
+	}
+}
