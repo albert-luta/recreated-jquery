@@ -133,56 +133,56 @@ class DOMExistingElements {
 		return DOMExistingElements.manipulateDimension(elements, Dimension.Height, value);
 	}
 
-	static innerWidth(elements: Element[]) {
+	private static getInnerDimension(elements: Element[], typeOfDimension: Dimension) {
 		if (!elements.length) return;
 
-		return (elements[0] as HTMLElement).clientWidth;
+		return (elements[0] as HTMLElement)[
+			typeOfDimension === Dimension.Width ? 'clientWidth' : 'clientHeight'
+		];
+	}
+
+	static innerWidth(elements: Element[]) {
+		return DOMExistingElements.getInnerDimension(elements, Dimension.Width);
 	}
 
 	static innerHeight(elements: Element[]) {
+		return DOMExistingElements.getInnerDimension(elements, Dimension.Height);
+	}
+
+	private static getOuterDimension(
+		elements: Element[],
+		typeOfDimension: Dimension,
+		includeMargins?: boolean
+	) {
 		if (!elements.length) return;
 
-		return (elements[0] as HTMLElement).clientHeight;
+		let dimension = elements[0].getBoundingClientRect()[typeOfDimension];
+		if (includeMargins) {
+			const computedStyle = getComputedStyle(elements[0]);
+			let margin1: string | number;
+			let margin2: string | number;
+
+			if (typeOfDimension === Dimension.Width) {
+				({ marginLeft: margin1, marginRight: margin2 } = computedStyle);
+			} else {
+				({ marginTop: margin1, marginBottom: margin2 } = computedStyle);
+			}
+
+			margin1 = parseFloat(margin1);
+			margin2 = parseFloat(margin2);
+
+			dimension += margin1 + margin2 ?? 0;
+		}
+
+		return dimension;
 	}
 
 	static outerWidth(elements: Element[], includeMargins?: boolean) {
-		if (!elements.length) return;
-
-		let width = elements[0].getBoundingClientRect().width;
-		if (includeMargins) {
-			let {
-				marginLeft,
-				marginRight,
-			}: { marginLeft: string | number; marginRight: string | number } = getComputedStyle(
-				elements[0]
-			);
-			marginLeft = parseFloat(marginLeft);
-			marginRight = parseFloat(marginRight);
-
-			width += marginLeft + marginRight ?? 0;
-		}
-
-		return width;
+		return DOMExistingElements.getOuterDimension(elements, Dimension.Width, includeMargins);
 	}
 
 	static outerHeight(elements: Element[], includeMargins?: boolean) {
-		if (!elements.length) return;
-
-		let height = elements[0].getBoundingClientRect().height;
-		if (includeMargins) {
-			let {
-				marginTop,
-				marginBottom,
-			}: { marginTop: string | number; marginBottom: string | number } = getComputedStyle(
-				elements[0]
-			);
-			marginTop = parseFloat(marginTop);
-			marginBottom = parseFloat(marginBottom);
-
-			height += marginTop + marginBottom ?? 0;
-		}
-
-		return height;
+		return DOMExistingElements.getOuterDimension(elements, Dimension.Height, includeMargins);
 	}
 }
 
