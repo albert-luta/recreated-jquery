@@ -2,6 +2,7 @@ import TypeGuards from './TypeGuards';
 import EventHandling, { OnMultipleEvents } from './EventHandling';
 import DOMExistingElements from './DOMExistingElements';
 import DOMNewElements, { ElementsToInsert } from './DOMNewElements';
+import DOMTraverse from './DOMTraverse';
 
 export type PropName =
 	| string
@@ -82,22 +83,6 @@ class JQuery {
 		this.elements.forEach((el, i) => handler.call(el, el, i));
 	}
 
-	first() {
-		if (!this.elements.length) return null;
-
-		this.elements = [this.elements[0]];
-
-		return this;
-	}
-
-	last() {
-		if (!this.elements.length) return null;
-
-		this.elements = [this.elements[this.elements.length - 1]];
-
-		return this;
-	}
-
 	clone() {
 		this.elements = DOMNewElements.clone(this.elements);
 
@@ -136,6 +121,118 @@ class JQuery {
 
 	empty(...filters: string[]) {
 		DOMNewElements.empty(this.elements, filters);
+
+		return this;
+	}
+
+	/**
+	 * DOM Traversing
+	 */
+
+	parent() {
+		this.elements = DOMTraverse.parent(this.elements);
+
+		return this;
+	}
+
+	parents() {
+		this.elements = DOMTraverse.parents(this.elements);
+
+		return this;
+	}
+
+	parentsUntil(stopSelector: string) {
+		this.elements = DOMTraverse.parentsUntil(this.elements, stopSelector);
+
+		return this;
+	}
+
+	children(filter?: string) {
+		this.elements = DOMTraverse.children(this.elements, filter);
+
+		return this;
+	}
+
+	find(selector: string) {
+		this.elements = DOMTraverse.find(this.elements, selector);
+
+		return this;
+	}
+
+	first() {
+		if (this.elements.length) {
+			this.elements = [this.elements[0]];
+		}
+
+		return this;
+	}
+
+	last() {
+		if (this.elements.length) {
+			this.elements = [this.elements[this.elements.length - 1]];
+		}
+
+		return this;
+	}
+
+	eq(index: number) {
+		if (index >= 0 && index < this.elements.length) {
+			this.elements = [this.elements[index]];
+		} else this.elements = [];
+
+		return this;
+	}
+
+	filter(selector: string) {
+		this.elements = DOMTraverse.filter(this.elements, selector);
+
+		return this;
+	}
+
+	not(selector: string) {
+		this.elements = DOMTraverse.not(this.elements, selector);
+
+		return this;
+	}
+
+	siblings(filterSelector?: string) {
+		this.elements = DOMTraverse.siblings(this.elements, filterSelector);
+
+		return this;
+	}
+
+	next() {
+		this.elements = DOMTraverse.next(this.elements);
+
+		return this;
+	}
+
+	prev() {
+		this.elements = DOMTraverse.prev(this.elements);
+
+		return this;
+	}
+
+	nextAll() {
+		this.elements = DOMTraverse.nextAll(this.elements);
+
+		return this;
+	}
+
+	prevAll() {
+		this.elements = DOMTraverse.prevAll(this.elements);
+
+		return this;
+	}
+
+	nextUntil(stopSelector: string) {
+		this.elements = DOMTraverse.nextUntil(this.elements, stopSelector);
+
+		return this;
+	}
+
+	prevUntil(stopSelector: string) {
+		this.elements = DOMTraverse.prevUntil(this.elements, stopSelector);
 
 		return this;
 	}
