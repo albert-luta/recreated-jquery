@@ -1,4 +1,4 @@
-class DOMManipulation {
+class DOMExistingElements {
 	static text(elements: Element[]): string;
 	static text(elements: Element[], input: string): null;
 	static text(elements: Element[], input: (index: number, originalText: string) => string): null;
@@ -101,4 +101,4 @@ class DOMManipulation {
 	}
 }
 
-export default DOMManipulation;
+export default DOMExistingElements;

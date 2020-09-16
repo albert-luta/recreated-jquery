@@ -1,12 +1,13 @@
 import TypeGuards from './TypeGuards';
 import EventHandling, { OnMultipleEvents } from './EventHandling';
-import DOMManipulation from './DOMManipulation';
+import DOMExistingElements from './DOMExistingElements';
+import DOMNewElements, { ElementsToInsert } from './DOMNewElements';
 
 export type PropName =
 	| string
 	| Element
 	| NodeListOf<Element>
-	| Element[]
+	| (Element | null)[]
 	| null
 	| undefined
 	| (() => any);
@@ -22,7 +23,7 @@ class JQuery {
 		} else if (TypeGuards.isNodeList(prop)) {
 			this.elements = [...prop];
 		} else if (TypeGuards.isArrayOfElements(prop)) {
-			this.elements = prop;
+			this.elements = [...prop.filter(Boolean)] as Element[];
 		} else if (TypeGuards.isReadyFunction(prop)) {
 			window.addEventListener('DOMContentLoaded', prop);
 		}
@@ -36,7 +37,7 @@ class JQuery {
 	text(input: string): this;
 	text(input: (index: number, originalText: string) => string): this;
 	text(input?: any): any {
-		const res = DOMManipulation.text(this.elements, input);
+		const res = DOMExistingElements.text(this.elements, input);
 
 		if (res !== null) return res;
 
@@ -47,7 +48,7 @@ class JQuery {
 	html(input: string): this;
 	html(input: (index: number, originalText: string) => string): this;
 	html(input?: any): any {
-		const res = DOMManipulation.html(this.elements, input);
+		const res = DOMExistingElements.html(this.elements, input);
 
 		if (res !== null) return res;
 
@@ -58,7 +59,7 @@ class JQuery {
 	val(input: string): this;
 	val(input: (index: number, originalText: string) => string): this;
 	val(input?: any): any {
-		const res = DOMManipulation.val(this.elements, input);
+		const res = DOMExistingElements.val(this.elements, input);
 
 		if (res !== null) return res;
 
@@ -70,9 +71,71 @@ class JQuery {
 	attr(attribute: string, modifier: string): this;
 	attr(attribute: string, modifier: (index: number, originalValue: string) => string): this;
 	attr(attribute: any, modifier?: any): any {
-		const res = DOMManipulation.attr(this.elements, attribute, modifier);
+		const res = DOMExistingElements.attr(this.elements, attribute, modifier);
 
 		if (typeof res === 'string' || res === undefined) return res;
+
+		return this;
+	}
+
+	each(handler: (element: Element, index: number) => any) {
+		this.elements.forEach((el, i) => handler.call(el, el, i));
+	}
+
+	first() {
+		if (!this.elements.length) return null;
+
+		this.elements = [this.elements[0]];
+
+		return this;
+	}
+
+	last() {
+		if (!this.elements.length) return null;
+
+		this.elements = [this.elements[this.elements.length - 1]];
+
+		return this;
+	}
+
+	clone() {
+		this.elements = DOMNewElements.clone(this.elements);
+
+		return this;
+	}
+
+	append(...elements: ElementsToInsert) {
+		DOMNewElements.append(this.elements, elements);
+
+		return this;
+	}
+
+	prepend(...elements: ElementsToInsert) {
+		DOMNewElements.prepend(this.elements, elements);
+
+		return this;
+	}
+
+	before(...elements: ElementsToInsert) {
+		DOMNewElements.before(this.elements, elements);
+
+		return this;
+	}
+
+	after(...elements: ElementsToInsert) {
+		DOMNewElements.after(this.elements, elements);
+
+		return this;
+	}
+
+	remove(...filters: string[]) {
+		DOMNewElements.remove(this.elements, filters);
+
+		return this;
+	}
+
+	empty(...filters: string[]) {
+		DOMNewElements.empty(this.elements, filters);
 
 		return this;
 	}
@@ -89,55 +152,55 @@ class JQuery {
 		return this;
 	}
 
-	click(handler: () => any): this {
+	click(handler: () => any) {
 		EventHandling.on(this.elements, 'click', handler);
 
 		return this;
 	}
 
-	dblclick(handler: () => any): this {
+	dblclick(handler: () => any) {
 		EventHandling.on(this.elements, 'dblclick', handler);
 
 		return this;
 	}
 
-	mouseenter(handler: () => any): this {
+	mouseenter(handler: () => any) {
 		EventHandling.on(this.elements, 'mouseenter', handler);
 
 		return this;
 	}
 
-	mouseleave(handler: () => any): this {
+	mouseleave(handler: () => any) {
 		EventHandling.on(this.elements, 'mouseleave', handler);
 
 		return this;
 	}
 
-	mousedown(handler: () => any): this {
+	mousedown(handler: () => any) {
 		EventHandling.on(this.elements, 'mousedown', handler);
 
 		return this;
 	}
 
-	mouseup(handler: () => any): this {
+	mouseup(handler: () => any) {
 		EventHandling.on(this.elements, 'mouseup', handler);
 
 		return this;
 	}
 
-	focus(handler: () => any): this {
+	focus(handler: () => any) {
 		EventHandling.on(this.elements, 'focus', handler);
 
 		return this;
 	}
 
-	blur(handler: () => any): this {
+	blur(handler: () => any) {
 		EventHandling.on(this.elements, 'blur', handler);
 
 		return this;
 	}
 
-	hover(handleMouseEnter: () => any, handleMouseLeave: () => any): this {
+	hover(handleMouseEnter: () => any, handleMouseLeave: () => any) {
 		EventHandling.on(this.elements, 'mouseenter', handleMouseEnter);
 		EventHandling.on(this.elements, 'mouseleave', handleMouseLeave);
 
