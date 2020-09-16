@@ -126,6 +126,38 @@ class JQuery {
 		return this;
 	}
 
+	width(value?: string | number) {
+		const res = DOMExistingElements.width(this.elements, value);
+
+		if (res !== null) return res;
+
+		return this;
+	}
+
+	height(value?: string | number) {
+		const res = DOMExistingElements.height(this.elements, value);
+
+		if (res !== null) return res;
+
+		return this;
+	}
+
+	innerWidth() {
+		return DOMExistingElements.innerWidth(this.elements);
+	}
+
+	innerHeight() {
+		return DOMExistingElements.innerHeight(this.elements);
+	}
+
+	outerWidth(includeMargins?: boolean) {
+		return DOMExistingElements.outerWidth(this.elements, includeMargins);
+	}
+
+	outerHeight(includeMargins?: boolean) {
+		return DOMExistingElements.outerHeight(this.elements, includeMargins);
+	}
+
 	/**
 	 * DOM Traversing
 	 */

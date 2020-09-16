@@ -1,3 +1,8 @@
+enum Dimension {
+	Width = 'width',
+	Height = 'height',
+}
+
 class DOMExistingElements {
 	static text(elements: Element[]): string;
 	static text(elements: Element[], input: string): null;
@@ -98,6 +103,86 @@ class DOMExistingElements {
 
 			return null;
 		}
+	}
+
+	private static manipulateDimension(
+		elements: Element[],
+		property: Dimension,
+		value?: string | number
+	): string | number | undefined | null {
+		if (value === undefined) {
+			if (!elements.length) return;
+
+			const val = getComputedStyle(elements[0] as HTMLElement).getPropertyValue(property);
+
+			return val.includes('px') ? parseFloat(val) : val;
+		} else {
+			const val = typeof value === 'number' ? `${value}px` : value;
+
+			elements.forEach((el) => ((el as HTMLElement).style[property] = val));
+
+			return null;
+		}
+	}
+
+	static width(elements: Element[], value?: string | number) {
+		return DOMExistingElements.manipulateDimension(elements, Dimension.Width, value);
+	}
+
+	static height(elements: Element[], value?: string | number) {
+		return DOMExistingElements.manipulateDimension(elements, Dimension.Height, value);
+	}
+
+	static innerWidth(elements: Element[]) {
+		if (!elements.length) return;
+
+		return (elements[0] as HTMLElement).clientWidth;
+	}
+
+	static innerHeight(elements: Element[]) {
+		if (!elements.length) return;
+
+		return (elements[0] as HTMLElement).clientHeight;
+	}
+
+	static outerWidth(elements: Element[], includeMargins?: boolean) {
+		if (!elements.length) return;
+
+		let width = elements[0].getBoundingClientRect().width;
+		if (includeMargins) {
+			let {
+				marginLeft,
+				marginRight,
+			}: { marginLeft: string | number; marginRight: string | number } = getComputedStyle(
+				elements[0]
+			);
+			marginLeft = parseFloat(marginLeft);
+			marginRight = parseFloat(marginRight);
+
+			width += marginLeft + marginRight ?? 0;
+		}
+
+		return width;
+	}
+
+	static outerHeight(elements: Element[], includeMargins?: boolean) {
+		if (!elements.length) return;
+
+		let height = elements[0].getBoundingClientRect().height;
+		if (includeMargins) {
+			let {
+				marginTop,
+				marginBottom,
+			}: { marginTop: string | number; marginBottom: string | number } = getComputedStyle(
+				elements[0]
+			);
+			marginTop = parseFloat(marginTop);
+			marginBottom = parseFloat(marginBottom);
+
+			height += marginTop + marginBottom ?? 0;
+		}
+
+		return height;
 	}
 }
 
