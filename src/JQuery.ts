@@ -3,6 +3,7 @@ import EventHandling, { OnMultipleEvents } from './EventHandling';
 import DOMExistingElements from './DOMExistingElements';
 import DOMNewElements, { ElementsToInsert } from './DOMNewElements';
 import DOMTraverse from './DOMTraverse';
+import StyleManipulation from './StyleManipulation';
 
 export type PropName =
 	| string
@@ -233,6 +234,39 @@ class JQuery {
 
 	prevUntil(stopSelector: string) {
 		this.elements = DOMTraverse.prevUntil(this.elements, stopSelector);
+
+		return this;
+	}
+
+	/**
+	 * Css
+	 */
+
+	addClass(...classes: string[]) {
+		StyleManipulation.addClass(this.elements, classes);
+
+		return this;
+	}
+
+	removeClass(...classes: string[]) {
+		StyleManipulation.removeClass(this.elements, classes);
+
+		return this;
+	}
+
+	toggleClass(...classes: string[]) {
+		StyleManipulation.toggleClass(this.elements, classes);
+
+		return this;
+	}
+
+	css(property: string): string;
+	css(property: { [property: string]: string }): this;
+	css(property: string, value: string): this;
+	css(property: any, value?: string): any {
+		const res = StyleManipulation.css(this.elements, property, value);
+
+		if (res !== null) return res;
 
 		return this;
 	}
