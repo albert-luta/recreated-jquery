@@ -49,8 +49,9 @@ class DOMNewElements {
 					});
 				} else if (elementToInsert instanceof JQuery) {
 					elementToInsert.each((jQueryEl) => {
-						jQueryEl.remove();
-						(elCorrect as Element).insertAdjacentElement(position, jQueryEl);
+						if (jQueryEl === window || jQueryEl === document) return;
+						(jQueryEl as Element).remove();
+						(elCorrect as Element).insertAdjacentElement(position, jQueryEl as Element);
 					});
 				}
 			});
