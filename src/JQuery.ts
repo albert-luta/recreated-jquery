@@ -1,5 +1,5 @@
 import TypeGuards from './TypeGuards';
-import EventHandling, { OnMultipleEvents } from './EventHandling';
+import EventHandling, { EventHandler, OnMultipleEvents } from './EventHandling';
 import DOMExistingElements from './DOMExistingElements';
 import DOMNewElements, { ElementsToInsert } from './DOMNewElements';
 import DOMTraverse from './DOMTraverse';
@@ -307,7 +307,7 @@ class JQuery {
 	 * Events handling
 	 */
 
-	on(event: string, handler: () => any): this;
+	on(event: string, handler: EventHandler): this;
 	on(event: OnMultipleEvents): this;
 	on(event: any, handler?: any): this {
 		EventHandling.on(this.elements, event, handler);
@@ -315,55 +315,55 @@ class JQuery {
 		return this;
 	}
 
-	click(handler: () => any) {
+	click(handler: EventHandler) {
 		EventHandling.on(this.elements, 'click', handler);
 
 		return this;
 	}
 
-	dblclick(handler: () => any) {
+	dblclick(handler: EventHandler) {
 		EventHandling.on(this.elements, 'dblclick', handler);
 
 		return this;
 	}
 
-	mouseenter(handler: () => any) {
+	mouseenter(handler: EventHandler) {
 		EventHandling.on(this.elements, 'mouseenter', handler);
 
 		return this;
 	}
 
-	mouseleave(handler: () => any) {
+	mouseleave(handler: EventHandler) {
 		EventHandling.on(this.elements, 'mouseleave', handler);
 
 		return this;
 	}
 
-	mousedown(handler: () => any) {
+	mousedown(handler: EventHandler) {
 		EventHandling.on(this.elements, 'mousedown', handler);
 
 		return this;
 	}
 
-	mouseup(handler: () => any) {
+	mouseup(handler: EventHandler) {
 		EventHandling.on(this.elements, 'mouseup', handler);
 
 		return this;
 	}
 
-	focus(handler: () => any) {
+	focus(handler: EventHandler) {
 		EventHandling.on(this.elements, 'focus', handler);
 
 		return this;
 	}
 
-	blur(handler: () => any) {
+	blur(handler: EventHandler) {
 		EventHandling.on(this.elements, 'blur', handler);
 
 		return this;
 	}
 
-	hover(handleMouseEnter: () => any, handleMouseLeave: () => any) {
+	hover(handleMouseEnter: EventHandler, handleMouseLeave: EventHandler) {
 		EventHandling.on(this.elements, 'mouseenter', handleMouseEnter);
 		EventHandling.on(this.elements, 'mouseleave', handleMouseLeave);
 

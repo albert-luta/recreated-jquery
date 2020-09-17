@@ -1,5 +1,5 @@
 import DOMNewElements from './DOMNewElements';
-import EventHandling, { OnMultipleEvents } from './EventHandling';
+import EventHandling, { OnMultipleEvents, EventHandler } from './EventHandling';
 import Http, { HttpConfig, HeadersOrConfig, Body } from './Http';
 import JQuery, { PropName } from './JQuery';
 
@@ -7,7 +7,7 @@ interface I$ {
 	(prop: PropName): JQuery;
 	ready(fn: () => any): void;
 
-	on(event: string, handler: () => any): void;
+	on(event: string, handler: EventHandler): void;
 	on(event: OnMultipleEvents): void;
 
 	create(element: string): JQuery;
