@@ -1,3 +1,6 @@
+import { EventHandler } from './EventHandling';
+import { JQueryElementAccepted } from './JQuery';
+
 class TypeGuards {
 	static isSelector(selector: any): selector is string {
 		return typeof selector === 'string';
@@ -7,14 +10,34 @@ class TypeGuards {
 		return element instanceof Element;
 	}
 
-	static isNodeList(nodeList: any): nodeList is NodeListOf<Element> {
+	static isWindow(element: any): element is Window {
+		return element === window;
+	}
+
+	static isDocument(element: any): element is Document {
+		return element === document;
+	}
+
+	static isJQueryElementAccepted(element: any): element is JQueryElementAccepted {
+		return (
+			TypeGuards.isElement(element) ||
+			TypeGuards.isWindow(element) ||
+			TypeGuards.isDocument(element)
+		);
+	}
+
+	static isNodeList(nodeList: any): nodeList is NodeList {
 		return nodeList instanceof NodeList;
 	}
 
-	static isArrayOfElements(arrayOfElements: any): arrayOfElements is (Element | null)[] {
+	static isArrayOfJQueryElementAccepted(
+		arrayOfJQueryElementAccepted: any
+	): arrayOfJQueryElementAccepted is (JQueryElementAccepted | null)[] {
 		return (
-			arrayOfElements instanceof Array &&
-			!arrayOfElements.some((el) => !(el instanceof Element) || el !== null)
+			arrayOfJQueryElementAccepted instanceof Array &&
+			!arrayOfJQueryElementAccepted.some(
+				(el) => !TypeGuards.isJQueryElementAccepted(el) || el !== null
+			)
 		);
 	}
 
@@ -22,7 +45,7 @@ class TypeGuards {
 		return value == null;
 	}
 
-	static isReadyFunction(fn: any): fn is () => any {
+	static isReadyFunction(fn: any): fn is EventHandler {
 		return typeof fn === 'function';
 	}
 }

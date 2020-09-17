@@ -5,29 +5,29 @@ import DOMNewElements, { ElementsToInsert } from './DOMNewElements';
 import DOMTraverse from './DOMTraverse';
 import StyleManipulation from './StyleManipulation';
 
+export type JQueryElementAccepted = Element | Window | Document;
+
 export type PropName =
 	| string
-	| Element
-	| NodeListOf<Element>
-	| (Element | null)[]
+	| JQueryElementAccepted
+	| NodeList
+	| (JQueryElementAccepted | null)[]
 	| null
 	| undefined
-	| (() => any);
+	| EventHandler;
 
 class JQuery {
-	private elements: Element[] = [];
+	private elements: JQueryElementAccepted[] = [];
 
 	constructor(prop: PropName) {
 		if (TypeGuards.isSelector(prop)) {
 			this.elements = [...document.querySelectorAll(prop)];
-		} else if (TypeGuards.isElement(prop)) {
+		} else if (TypeGuards.isJQueryElementAccepted(prop)) {
 			this.elements = [prop];
-		} else if (TypeGuards.isNodeList(prop)) {
-			this.elements = [...prop];
-		} else if (TypeGuards.isArrayOfElements(prop)) {
-			this.elements = [...prop.filter(Boolean)] as Element[];
+		} else if (TypeGuards.isNodeList(prop) || TypeGuards.isArrayOfJQueryElementAccepted(prop)) {
+			this.elements = [...prop].filter(Boolean) as JQueryElementAccepted[];
 		} else if (TypeGuards.isReadyFunction(prop)) {
-			window.addEventListener('DOMContentLoaded', prop);
+			EventHandling.on([window], 'DOMContentLoaded', prop);
 		}
 	}
 
@@ -80,7 +80,7 @@ class JQuery {
 		return this;
 	}
 
-	each(handler: (element: Element, index: number) => any) {
+	each(handler: (element: JQueryElementAccepted, index: number) => any) {
 		this.elements.forEach((el, i) => handler.call(el, el, i));
 	}
 

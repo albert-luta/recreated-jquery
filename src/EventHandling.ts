@@ -1,6 +1,6 @@
-type ElementAccepted = Window | Document | Element;
+import { JQueryElementAccepted } from './JQuery';
 
-export type EventHandler = (element: ElementAccepted, index: number, event: Event) => any;
+export type EventHandler = (element: JQueryElementAccepted, index: number, event: Event) => any;
 
 export interface OnMultipleEvents {
 	[event: string]: EventHandler;
@@ -8,7 +8,7 @@ export interface OnMultipleEvents {
 
 class EventHandling {
 	private static atachHandler(
-		el: ElementAccepted,
+		el: JQueryElementAccepted,
 		index: number,
 		event: string,
 		handler: EventHandler
@@ -18,9 +18,9 @@ class EventHandling {
 		});
 	}
 
-	static on(elements: ElementAccepted[], event: string, handler: EventHandler): void;
-	static on(elements: ElementAccepted[], event: OnMultipleEvents): void;
-	static on(elements: ElementAccepted[], event: any, handler?: any): void {
+	static on(elements: JQueryElementAccepted[], event: string, handler: EventHandler): void;
+	static on(elements: JQueryElementAccepted[], event: OnMultipleEvents): void;
+	static on(elements: JQueryElementAccepted[], event: any, handler?: any): void {
 		if (typeof event === 'string') {
 			elements.forEach((el, i) => {
 				EventHandling.atachHandler(el, i, event, handler);

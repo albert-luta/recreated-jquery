@@ -1,51 +1,75 @@
+import { JQueryElementAccepted } from './JQuery';
+
 enum Dimension {
 	Width = 'width',
 	Height = 'height',
 }
 
 class DOMExistingElements {
-	static text(elements: Element[]): string;
-	static text(elements: Element[], input: string): null;
-	static text(elements: Element[], input: (index: number, originalText: string) => string): null;
-	static text(elements: Element[], input?: any): any {
+	static text(elements: JQueryElementAccepted[]): string;
+	static text(elements: JQueryElementAccepted[], input: string): null;
+	static text(
+		elements: JQueryElementAccepted[],
+		input: (index: number, originalText: string) => string
+	): null;
+	static text(elements: JQueryElementAccepted[], input?: any): any {
 		if (input == null) {
-			return elements.reduce((acc, curr) => acc + (curr.textContent ?? ''), '');
+			return elements.reduce((acc, curr) => acc + ((curr as any).textContent ?? ''), '');
 		}
 
 		if (typeof input === 'string') {
-			elements.forEach((el) => (el.textContent = input));
+			elements.forEach((el) => {
+				if (el !== window) (el as Element | Document).textContent = input;
+			});
 		} else if (typeof input === 'function') {
 			elements.forEach((el, index) => {
-				el.textContent = input(index, el.textContent);
+				if (el !== window) {
+					(el as Element | Document).textContent = input(
+						index,
+						(el as Element | Document).textContent
+					);
+				}
 			});
 		}
 
 		return null;
 	}
 
-	static html(elements: Element[]): string;
-	static html(elements: Element[], input: string): null;
-	static html(elements: Element[], input: (index: number, originalText: string) => string): null;
-	static html(elements: Element[], input?: any): any {
+	static html(elements: JQueryElementAccepted[]): string;
+	static html(elements: JQueryElementAccepted[], input: string): null;
+	static html(
+		elements: JQueryElementAccepted[],
+		input: (index: number, originalText: string) => string
+	): null;
+	static html(elements: JQueryElementAccepted[], input?: any): any {
 		if (input == null) {
-			return elements.reduce((acc, curr) => acc + curr.innerHTML, '');
+			return elements.reduce((acc, curr) => acc + (curr as any).innerHTML ?? '', '');
 		}
 
 		if (typeof input === 'string') {
-			elements.forEach((el) => (el.innerHTML = input));
+			elements.forEach((el) => {
+				if (el !== window && el !== document) {
+					(el as Element).innerHTML = input;
+				}
+			});
 		} else if (typeof input === 'function') {
 			elements.forEach((el, index) => {
-				el.innerHTML = input(index, el.innerHTML);
+				if (el !== window && el !== document) {
+					(el as Element).innerHTML = input(index, (el as Element).innerHTML);
+				}
 			});
 		}
 
 		return null;
 	}
 
-	static val(elements: Element[]): string;
-	static val(elements: Element[], input: string): null;
-	static val(elements: Element[], input: (index: number, originalText: string) => string): null;
-	static val(elements: Element[], input?: any): any {
+	static val(elements: JQueryElementAccepted[]): string;
+	static val(elements: JQueryElementAccepted[], input: string): null;
+	static val(
+		elements: JQueryElementAccepted[],
+		input: (index: number, originalText: string) => string
+	): null;
+	static val(elements: JQueryElementAccepted[], input?: any): any {
 		if (input == null) {
 			return elements.reduce((acc, curr) => {
 				if (!(curr instanceof HTMLInputElement)) return acc;
@@ -67,25 +91,30 @@ class DOMExistingElements {
 		return null;
 	}
 
-	static attr(elements: Element[], attribute: string): string | undefined;
-	static attr(elements: Element[], attribute: { [attribute: string]: string }): null;
-	static attr(elements: Element[], attribute: string, modifier: string): null;
+	static attr(elements: JQueryElementAccepted[], attribute: string): string | undefined;
 	static attr(
-		elements: Element[],
+		elements: JQueryElementAccepted[],
+		attribute: { [attribute: string]: string }
+	): null;
+	static attr(elements: JQueryElementAccepted[], attribute: string, modifier: string): null;
+	static attr(
+		elements: JQueryElementAccepted[],
 		attribute: string,
 		modifier: (index: number, originalValue: string) => string
 	): null;
-	static attr(elements: Element[], attribute: any, modifier?: any): any {
+	static attr(elements: JQueryElementAccepted[], attribute: any, modifier?: any): any {
 		if (modifier == null) {
 			if (typeof attribute === 'string') {
 				if (!elements.length) return;
 
-				return elements[0].getAttribute(attribute) ?? undefined;
+				return (elements[0] as any).getAttribute?.(attribute) ?? undefined;
 			} else {
 				const attributeEntries = Object.entries(attribute);
 
 				elements.forEach((el) => {
-					attributeEntries.forEach(([a, value]) => el.setAttribute(a, value as string));
+					attributeEntries.forEach(([a, value]) =>
+						(el as any).setAttribute?.(a, value as string)
+					);
 				});
 
 				return null;
@@ -93,11 +122,14 @@ class DOMExistingElements {
 		} else {
 			if (typeof modifier === 'string') {
 				elements.forEach((el) => {
-					el.setAttribute(attribute, modifier);
+					(el as any).setAttribute?.(attribute, modifier);
 				});
 			} else {
 				elements.forEach((el, index) => {
-					el.setAttribute(attribute, modifier(index, el.getAttribute(attribute)));
+					(el as any).setAttribute?.(
+						attribute,
+						modifier(index, (el as any).getAttribute?.(attribute) ?? '')
+					);
 				});
 			}
 
@@ -106,7 +138,7 @@ class DOMExistingElements {
 	}
 
 	private static manipulateDimension(
-		elements: Element[],
+		elements: JQueryElementAccepted[],
 		property: Dimension,
 		value?: string | number
 	): string | number | undefined | null {
@@ -125,15 +157,18 @@ class DOMExistingElements {
 		}
 	}
 
-	static width(elements: Element[], value?: string | number) {
+	static width(elements: JQueryElementAccepted[], value?: string | number) {
 		return DOMExistingElements.manipulateDimension(elements, Dimension.Width, value);
 	}
 
-	static height(elements: Element[], value?: string | number) {
+	static height(elements: JQueryElementAccepted[], value?: string | number) {
 		return DOMExistingElements.manipulateDimension(elements, Dimension.Height, value);
 	}
 
-	private static getInnerDimension(elements: Element[], typeOfDimension: Dimension) {
+	private static getInnerDimension(
+		elements: JQueryElementAccepted[],
+		typeOfDimension: Dimension
+	) {
 		if (!elements.length) return;
 
 		return (elements[0] as HTMLElement)[
@@ -141,24 +176,24 @@ class DOMExistingElements {
 		];
 	}
 
-	static innerWidth(elements: Element[]) {
+	static innerWidth(elements: JQueryElementAccepted[]) {
 		return DOMExistingElements.getInnerDimension(elements, Dimension.Width);
 	}
 
-	static innerHeight(elements: Element[]) {
+	static innerHeight(elements: JQueryElementAccepted[]) {
 		return DOMExistingElements.getInnerDimension(elements, Dimension.Height);
 	}
 
 	private static getOuterDimension(
-		elements: Element[],
+		elements: JQueryElementAccepted[],
 		typeOfDimension: Dimension,
 		includeMargins?: boolean
 	) {
-		if (!elements.length) return;
+		if (!elements.length || elements[0] === window || elements[0] === document) return;
 
-		let dimension = elements[0].getBoundingClientRect()[typeOfDimension];
+		let dimension = (elements[0] as Element).getBoundingClientRect()[typeOfDimension];
 		if (includeMargins) {
-			const computedStyle = getComputedStyle(elements[0]);
+			const computedStyle = getComputedStyle(elements[0] as Element);
 			let margin1: string | number;
 			let margin2: string | number;
 
@@ -177,11 +212,11 @@ class DOMExistingElements {
 		return dimension;
 	}
 
-	static outerWidth(elements: Element[], includeMargins?: boolean) {
+	static outerWidth(elements: JQueryElementAccepted[], includeMargins?: boolean) {
 		return DOMExistingElements.getOuterDimension(elements, Dimension.Width, includeMargins);
 	}
 
-	static outerHeight(elements: Element[], includeMargins?: boolean) {
+	static outerHeight(elements: JQueryElementAccepted[], includeMargins?: boolean) {
 		return DOMExistingElements.getOuterDimension(elements, Dimension.Height, includeMargins);
 	}
 }

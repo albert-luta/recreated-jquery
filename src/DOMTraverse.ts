@@ -1,117 +1,131 @@
+import { JQueryElementAccepted } from './JQuery';
+
 enum Direction {
 	Next = 'nextElementSibling',
 	Prev = 'previousElementSibling',
 }
 
 class DOMTraverse {
-	static parent(elements: Element[]) {
-		return elements.map((el) => el.parentElement as Element);
+	static parent(elements: JQueryElementAccepted[]) {
+		return elements.map((el) => {
+			if (el === window) return window;
+			if (el === document) return document;
+			return (el as Element).parentElement;
+		}) as JQueryElementAccepted[];
 	}
 
-	private static getParents(elements: Element[], stopSelector?: string) {
+	private static getParents(elements: JQueryElementAccepted[], stopSelector?: string) {
 		const parents = new Set();
 
 		elements.forEach((el) => {
-			let current = el;
+			let current: JQueryElementAccepted | null = el;
 			while (
-				current.parentElement &&
-				(stopSelector ? !current.parentElement.matches(stopSelector) : true)
+				(current as any)?.parentElement &&
+				(stopSelector ? !(current as Element).parentElement?.matches?.(stopSelector) : true)
 			) {
-				parents.add(current.parentElement);
-				current = current.parentElement;
+				parents.add((current as Element).parentElement);
+				current = (current as Element).parentElement;
 			}
 		});
 
-		return [...parents] as Element[];
+		return [...parents] as JQueryElementAccepted[];
 	}
 
-	static parents(elements: Element[]) {
+	static parents(elements: JQueryElementAccepted[]) {
 		return DOMTraverse.getParents(elements);
 	}
 
-	static parentsUntil(elements: Element[], stopSelector: string) {
+	static parentsUntil(elements: JQueryElementAccepted[], stopSelector: string) {
 		return DOMTraverse.getParents(elements, stopSelector);
 	}
 
-	static children(elements: Element[], filter?: string) {
-		if (!elements.length) return [];
+	static children(elements: JQueryElementAccepted[], filter?: string) {
+		if (!elements.length || elements[0] === window) return [];
 
-		return [...elements[0].children].filter((el) =>
+		return [...(elements[0] as Element).children].filter((el) =>
 			filter ? el.matches(filter) : true
-		) as Element[];
+		) as JQueryElementAccepted[];
 	}
 
-	static find(elements: Element[], selector: string) {
-		if (!elements.length) return [];
+	static find(elements: JQueryElementAccepted[], selector: string) {
+		if (!elements.length || elements[0] === window) return [];
 
-		return [...elements[0].querySelectorAll(selector)] as Element[];
+		return [...(elements[0] as Element).querySelectorAll(selector)] as JQueryElementAccepted[];
 	}
 
-	static filter(elements: Element[], selector: string) {
-		return elements.filter((el) => el.matches(selector));
+	static filter(elements: JQueryElementAccepted[], selector: string) {
+		return elements.filter((el) => {
+			if (el === window || el === document) return false;
+			return (el as Element).matches(selector);
+		});
 	}
 
-	static not(elements: Element[], selector: string) {
-		return elements.filter((el) => !el.matches(selector));
+	static not(elements: JQueryElementAccepted[], selector: string) {
+		return elements.filter((el) => {
+			if (el === window || el === document) return false;
+			return !(el as Element).matches(selector);
+		});
 	}
 
-	static siblings(elements: Element[], filterSelector?: string) {
+	static siblings(elements: JQueryElementAccepted[], filterSelector?: string) {
 		return elements
 			.map((el) =>
-				[...(el.parentElement?.children ?? [])].filter(
+				[...((el as any).parentElement?.children ?? [])].filter(
 					(element) =>
 						element !== el && (filterSelector ? element.matches(filterSelector) : true)
 				)
 			)
-			.flat();
+			.flat() as JQueryElementAccepted[];
 	}
 
-	private static getAdjacentSibling(elements: Element[], direction: Direction) {
-		return elements.map((el) => el[direction]).filter(Boolean) as Element[];
+	private static getAdjacentSibling(elements: JQueryElementAccepted[], direction: Direction) {
+		return elements
+			.map((el) => (el as any)[direction])
+			.filter(Boolean) as JQueryElementAccepted[];
 	}
 
-	static next(elements: Element[]) {
+	static next(elements: JQueryElementAccepted[]) {
 		return DOMTraverse.getAdjacentSibling(elements, Direction.Next);
 	}
 
-	static prev(elements: Element[]) {
+	static prev(elements: JQueryElementAccepted[]) {
 		return DOMTraverse.getAdjacentSibling(elements, Direction.Prev);
 	}
 
 	private static getAdjacentSiblings(
-		elements: Element[],
+		elements: JQueryElementAccepted[],
 		direction: Direction,
 		stopSelector?: string
 	) {
 		const siblings = new Set();
 
 		elements.forEach((el) => {
-			let current = el;
+			let current: JQueryElementAccepted | null = el;
 			while (
-				current[direction] &&
-				(stopSelector ? !current[direction]!.matches(stopSelector) : true)
+				(current as any)?.[direction] &&
+				(stopSelector ? !(current as any)[direction]?.matches?.(stopSelector) : true)
 			) {
-				siblings.add(current[direction]);
-				current = current[direction] as Element;
+				siblings.add((current as Element)[direction]);
+				current = (current as Element)[direction];
 			}
 		});
 
-		return [...siblings] as Element[];
+		return [...siblings] as JQueryElementAccepted[];
 	}
 
-	static nextAll(elements: Element[]) {
+	static nextAll(elements: JQueryElementAccepted[]) {
 		return DOMTraverse.getAdjacentSiblings(elements, Direction.Next);
 	}
 
-	static prevAll(elements: Element[]) {
+	static prevAll(elements: JQueryElementAccepted[]) {
 		return DOMTraverse.getAdjacentSiblings(elements, Direction.Prev);
 	}
 
-	static nextUntil(elements: Element[], stopSelector: string) {
+	static nextUntil(elements: JQueryElementAccepted[], stopSelector: string) {
 		return DOMTraverse.getAdjacentSiblings(elements, Direction.Next, stopSelector);
 	}
 
-	static prevUntil(elements: Element[], stopSelector: string) {
+	static prevUntil(elements: JQueryElementAccepted[], stopSelector: string) {
 		return DOMTraverse.getAdjacentSiblings(elements, Direction.Prev, stopSelector);
 	}
 }

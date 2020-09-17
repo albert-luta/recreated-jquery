@@ -5,7 +5,7 @@ import JQuery, { PropName } from './JQuery';
 
 interface I$ {
 	(prop: PropName): JQuery;
-	ready(fn: () => any): void;
+	ready(handler: EventHandler): void;
 
 	on(event: string, handler: EventHandler): void;
 	on(event: OnMultipleEvents): void;
