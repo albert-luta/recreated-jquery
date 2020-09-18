@@ -4,6 +4,7 @@ import DOMExistingElements from './DOMExistingElements';
 import DOMNewElements, { ElementsToInsert } from './DOMNewElements';
 import DOMTraverse from './DOMTraverse';
 import StyleManipulation from './StyleManipulation';
+import Effects, { AnimationObject } from './Effects';
 
 export type JQueryElementAccepted = Element | Window | Document;
 
@@ -18,6 +19,7 @@ export type PropName =
 
 class JQuery {
 	private elements: JQueryElementAccepted[] = [];
+	private effects = new Effects();
 
 	constructor(prop: PropName) {
 		if (TypeGuards.isSelector(prop)) {
@@ -366,6 +368,46 @@ class JQuery {
 	hover(handleMouseEnter: EventHandler, handleMouseLeave: EventHandler) {
 		EventHandling.on(this.elements, 'mouseenter', handleMouseEnter);
 		EventHandling.on(this.elements, 'mouseleave', handleMouseLeave);
+
+		return this;
+	}
+
+	/**
+	 * Effects
+	 */
+
+	animate(animation: AnimationObject, duration: number, callback?: EventHandler) {
+		this.effects.animate(this.elements, animation, duration, callback);
+
+		return this;
+	}
+
+	play() {
+		this.effects.play();
+
+		return this;
+	}
+
+	pause() {
+		this.effects.pause();
+
+		return this;
+	}
+
+	reverse() {
+		this.effects.reverse();
+
+		return this;
+	}
+
+	finish() {
+		this.effects.finish();
+
+		return this;
+	}
+
+	cancel() {
+		this.effects.cancel();
 
 		return this;
 	}
