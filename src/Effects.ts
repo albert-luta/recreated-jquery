@@ -2,7 +2,7 @@ import { EventHandler } from './EventHandling';
 import { JQueryElementAccepted } from './JQuery';
 import TypeGuards from './TypeGuards';
 
-export type AnimationObject = { [propert: string]: string };
+export type AnimationObject = { [property: string]: string | number };
 
 enum AnimationsManipulations {
 	Play = 'play',
@@ -15,20 +15,12 @@ enum AnimationsManipulations {
 class Effects {
 	private animations: Animation[][] = [];
 
-	private getDefaultDisplayValue(element: Element) {
-		const createdElement = document.createElement(element.nodeName);
-		document.body.append(createdElement);
-		const defaultValue = getComputedStyle(createdElement).display;
-
-		return defaultValue;
-	}
-
 	private getInitialProperties(element: Element, animation: AnimationObject) {
 		const computedStyle = getComputedStyle(element);
 
 		const initialProperties = Object.entries(animation).map(([property]) => [
 			property,
-			computedStyle.getPropertyValue(property),
+			property !== 'offset' ? computedStyle.getPropertyValue(property) : '0',
 		]);
 
 		return Object.fromEntries(initialProperties);
@@ -45,18 +37,18 @@ class Effects {
 
 	animate(
 		elements: JQueryElementAccepted[],
-		animation: AnimationObject,
-		duration: number,
+		keyframes: AnimationObject[],
+		duration: number = 0,
 		callback?: EventHandler
 	) {
 		const animations = elements.map((element, i) => {
 			if (TypeGuards.isWindow(element) || TypeGuards.isDocument(element)) return;
 
 			const anim = element.animate(
-				[this.getInitialProperties(element, animation), animation],
+				[this.getInitialProperties(element, keyframes[0] ?? {}), ...keyframes],
 				{
 					duration,
-					fill: 'both',
+					fill: 'forwards',
 				}
 			);
 
@@ -67,7 +59,7 @@ class Effects {
 					this.animations[i].splice(animationToRemoveIndex, 1);
 				}
 
-				if (callback) {
+				if (callback && !i) {
 					callback.call(element, element, i, e);
 				}
 			};

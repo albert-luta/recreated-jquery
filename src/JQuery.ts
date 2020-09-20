@@ -376,8 +376,8 @@ class JQuery {
 	 * Effects
 	 */
 
-	animate(animation: AnimationObject, duration: number, callback?: EventHandler) {
-		this.effects.animate(this.elements, animation, duration, callback);
+	animate(to: AnimationObject, duration: number, callback?: EventHandler) {
+		this.effects.animate(this.elements, [to], duration, callback);
 
 		return this;
 	}
